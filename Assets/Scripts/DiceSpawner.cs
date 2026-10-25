@@ -15,7 +15,11 @@ public class DiceSpawner : MonoBehaviour
     private readonly List<Dice> activeDice = new List<Dice>();
 
     public IReadOnlyList<Dice> ActiveDice => activeDice;
-    public int DiceCount => diceCount;
+    public int DiceCount
+    {
+        get => diceCount;
+        set => diceCount = Mathf.Max(1, value);
+    }
     public event Action OnRoll;
 
     private void OnEnable()
@@ -32,7 +36,19 @@ public class DiceSpawner : MonoBehaviour
 
     private void HandleRollInput(InputAction.CallbackContext context)
     {
-        foreach (Dice dice in activeDice)
+        RollDice(diceCount);
+    }
+
+    public void RollDice()
+    {
+        RollDice(diceCount);
+    }
+
+    public void RollDice(int count)
+    {
+        diceCount = Mathf.Max(1, count);
+
+        foreach (var dice in activeDice)
         {
             dice.HideOffMap();
         }
@@ -40,14 +56,14 @@ public class DiceSpawner : MonoBehaviour
         
         while (pool.Count < diceCount)
         {
-            Dice newDice = Instantiate(dicePrefab);
+            var newDice = Instantiate(dicePrefab);
             newDice.HideOffMap();
             pool.Add(newDice);
         }
         
-        for (int i = 0; i < diceCount; i++)
+        for (var i = 0; i < diceCount; i++)
         {
-            Vector3 offset = new Vector3(i * spawnSpacing, 0f, 0f);
+            var offset = new Vector3(i * spawnSpacing, 0f, 0f);
             pool[i].Roll(transform.position + offset);
             activeDice.Add(pool[i]);
         }
